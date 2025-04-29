@@ -27,6 +27,20 @@
 .App-link {
   color: #61dafb;
 }
+/* Apply relative positioning to the button */
+button.btn.btn-outline-primary.w-100.parent_div.metro {
+  position: relative;
+  padding: 10px;
+}
+
+/* Style the icon within the button */
+i.fa.fa-facebook {
+  position: absolute;
+  left: 15px;
+  top: 14px;
+  font-size: 18px;
+  bottom: 0;
+}
 
 @keyframes App-logo-spin {
   from {
