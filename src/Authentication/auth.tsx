@@ -1,3 +1,4 @@
+
 import React, {
   createContext,
   useContext,
@@ -6,6 +7,7 @@ import React, {
   useEffect,
 } from 'react';
 import { toast } from 'react-toastify';
+import { googleLogout } from '@react-oauth/google';
 
 // Define user credentials
 interface UserCredentials {
@@ -43,8 +45,10 @@ interface AuthProviderProps {
 
 // Auth provider component
 export const Auth: React.FC<AuthProviderProps> = ({ children }) => {
+  
   const [user, setUser] = useState<UserCredentials | null>(null);
   const CryptoJS = require("crypto-js");
+  
 
   useEffect(() => {
     const savedEncryptedUser = localStorage.getItem('user');
@@ -132,6 +136,7 @@ export const Auth: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = (): void => {
     localStorage.removeItem('user');
     setUser(null);
+    googleLogout(); 
   };
 
   return (

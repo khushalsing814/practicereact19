@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../authentication/auth";
 import { Formik } from "formik";
 import { loginSchema } from "../validationSchema";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
-import FacebookLogin from "react-facebook-login";
 const CryptoJS = require("crypto-js");
 
 interface LoginFormValues {
@@ -23,6 +22,7 @@ declare global {
 const Login: React.FC = () => {
   const { login, setUser } = useAuth();
   const [message, setMessage] = useState<string>("");
+  const [sdkLoaded, setSdkLoaded] = useState(false);
 
   const initialValues: LoginFormValues = {
     email: "manu1@gmail.com",
@@ -34,28 +34,72 @@ const Login: React.FC = () => {
     setMessage(success ? "Logged in!" : "Login failed.");
   };
 
-  const responseFacebook = (response: any) => {
-    if (!response || !response.email || !response.name) {
-      // toast.error("Facebook login failed or incomplete data.");
-      setMessage("Login failed.")
+  useEffect(() => {
+    if (!document.getElementById("facebook-jssdk")) {
+      const script = document.createElement("script");
+      script.id = "facebook-jssdk";
+      script.src = "https://connect.facebook.net/en_US/sdk.js";
+      script.async = true;
+      script.onload = () => {
+        window.FB.init({
+          appId: "1458781238865329",
+          cookie: true,
+          xfbml: true,
+          version: "v18.0",
+        });
+        setSdkLoaded(true);
+      };
+      document.body.appendChild(script);
+    }
+    return () => {
+      const script = document.getElementById("facebook-jssdk");
+      if (script) script.remove();
+    };
+  }, []);
+
+  const handleFBLogin = () => {
+    if (!sdkLoaded) {
+      // toast.error("Facebook SDK not loaded yet.");
+      setMessage("Login Failed")
       return;
     }
 
-    const user = {
-      email: response.email,
-      UserName: response.name,
-    };
+    window.FB.login(
+      function (response: any) {
+        if (response.authResponse) {
+          window.FB.api("/me", { fields: "name,email" }, function (userInfo: any) {
+            if (!userInfo || !userInfo.email) {
+              // toast.error("Could not retrieve Facebook user email.");
+              setMessage("Login Failed")
+              return;
+            }
 
-    setUser(user);
+            const userData = {
+              email: userInfo.email,
+              UserName: userInfo.name,
+            };
 
-    // Encrypt the user data
-    const passphrase = "manumanu!!!!22222222jjjjjj";
-    const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(user), passphrase).toString();
+            setUser(userData);
 
-    // Store encrypted data in localStorage
-    localStorage.setItem("user", encryptedData);
-
-    toast.success("Facebook login successful!");
+            try {
+              const passphrase = "manumanu!!!!22222222jjjjjj";
+              const encryptedData = CryptoJS.AES.encrypt(
+                JSON.stringify(userData),
+                passphrase
+              ).toString();
+              localStorage.setItem("user", encryptedData);
+              toast.success("User login successfully");
+            } catch (error) {
+              toast.error("Error saving Facebook login data.");
+            }
+          });
+        } else {
+          // toast.error("Facebook login failed or cancelled.");
+          setMessage("Login Failed")
+        }
+      },
+      { scope: "email" }
+    );
   };
 
   return (
@@ -103,39 +147,37 @@ const Login: React.FC = () => {
               <GoogleLogin
                 onSuccess={(credentialResponse) => {
                   if (credentialResponse.credential) {
-                    // Decode the JWT token and extract user data
                     const decoded: any = jwtDecode(credentialResponse.credential);
                     const userData = {
                       email: decoded.email,
                       UserName: decoded.name,
                     };
                     setUser(userData);
-                    // Encrypt the user data
+
                     const passphrase = "manumanu!!!!22222222jjjjjj";
-                    const encryptedData = CryptoJS.AES.encrypt( JSON.stringify(userData),passphrase).toString();
-
-                    // Store encrypted data in localStorage
+                    const encryptedData = CryptoJS.AES.encrypt(
+                      JSON.stringify(userData),
+                      passphrase
+                    ).toString();
                     localStorage.setItem("user", encryptedData);
-
-                    toast.success("Google login successful!");
+                    toast.success("User login successfully");
                   }
                 }}
                 onError={() => {
                   setMessage("Google login failed.");
                 }}
               />
+            </div>
 
-              {/* Facebook Login */}
-              <div className="mt-3 d-flex flex-column gap-2">
-                <FacebookLogin
-                  appId="1458781238865329"
-                  autoLoad={false}
-                  fields="name,email,picture"
-                  callback={responseFacebook}
-                  icon="fa-facebook"
-                  cssClass="btn btn-outline-primary w-100 parent_div"
-                />
-              </div>
+            {/* Facebook Login */}
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={handleFBLogin}
+                className="btn btn-outline-primary w-100"
+              >
+                <i className="fa fa-facebook me-2"></i> Login with Facebook
+              </button>
             </div>
           </form>
         )}
