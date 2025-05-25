@@ -1,6 +1,6 @@
 // pages/Dashboard.tsx
 import React from 'react';
-import { useAuth } from './authentication/auth';
+import { useAuth } from './auth/auth';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();

@@ -7,7 +7,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min';
 
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { Auth } from './authentication/auth';
+import { Auth } from './auth/auth';
 
 
 // Replace this with your actual Google Client ID

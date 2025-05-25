@@ -1,6 +1,6 @@
 import React, { JSX, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from './authentication/auth';
+import { useAuth } from './auth/auth';
 
 // A wrapper component that loads its child component lazily
 const LazyWrapper: React.FC<{ component: React.LazyExoticComponent<() => JSX.Element> }> = ({ component: Component }) => {
