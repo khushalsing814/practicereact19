@@ -45,7 +45,7 @@ interface AuthProviderProps {
 
 // Auth provider component
 export const Auth: React.FC<AuthProviderProps> = ({ children }) => {
-  
+
   const [user, setUser] = useState<UserCredentials | null>(null);
   const CryptoJS = require("crypto-js");
   
