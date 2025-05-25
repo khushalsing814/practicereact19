@@ -1,6 +1,7 @@
 // components/Signup.tsx
 import React, { useState } from 'react';
-import { useAuth } from './auth';
+import { useAuth } from '../auth/auth';
+
 
 const Signup: React.FC = () => {
   const { signup } = useAuth();
