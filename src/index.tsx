@@ -4,9 +4,10 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
-import { Auth } from './authentication/auth';
+
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { Auth } from './authentication/auth';
 
 
 // Replace this with your actual Google Client ID
